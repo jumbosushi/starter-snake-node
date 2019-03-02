@@ -42,6 +42,9 @@ app.post('/move', (request, response) => {
     move: 'up', // one of: ['up','down','left','right']
   }
 
+  // check if valid move
+  console.log(isValidMove(request.body, 'up'))
+
   return response.json(data)
 })
 
@@ -54,6 +57,47 @@ app.post('/ping', (request, response) => {
   // Used for checking if this snake is still alive.
   return response.json({});
 })
+
+// --- HELPERS ---
+let isValidMove = function(data, move) {
+  head = data.you.body[0];
+  if (move == "up") {
+    head.y -= 1;
+  } else if (move == "down") {
+    head.y += 1;
+  } else if (move == "left") {
+    head.x -= 1;
+  } else if (move == "right") {
+    head.x += 1;
+  }
+  if (isInBounds(data, head) && !isSnakeCell(data, head)){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// checks if given coordinate is in the game board
+let isInBounds = function(data, pos) {
+  const { height, width } = data.board;
+  if (pos.x > 0 || pos.y > 0 || pos.x < width || pos.y < height) {
+    return true;
+  }
+  return false;
+}
+
+// checks if given cell is occupied by a snake
+let isSnakeCell = function(data, pos) {
+  const { board: { snakes } } = data;
+  for (let snake of snakes) {
+    for (let cell of snake.body) {
+      if (cell.x == pos.x && cell.y == pos.y) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 // --- SNAKE LOGIC GOES ABOVE THIS LINE ---
 
