@@ -37,14 +37,16 @@ app.post('/start', (request, response) => {
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
 
-  // Response data
-  const data = {
-    move: 'up', // one of: ['up','down','left','right']
+  let dir = getRandomDirection();
+  while (!isValidMove(request.body, dir)){
+    dir = getRandomDirection();  
   }
 
-  // check if valid move
-  console.log(isValidMove(request.body, 'up'))
-
+  // Response data
+  const data = {
+    move: dir, // one of: ['up','down','left','right']
+  }
+  
   return response.json(data)
 })
 
@@ -88,7 +90,8 @@ let isInBounds = function(data, pos) {
 
 // checks if given cell is occupied by a snake
 let isSnakeCell = function(data, pos) {
-  const { board: { snakes } } = data;
+  let { board: { snakes } } = data;
+  // snakes.push(data.you.body)
   for (let snake of snakes) {
     for (let cell of snake.body) {
       if (cell.x == pos.x && cell.y == pos.y) {
@@ -96,7 +99,50 @@ let isSnakeCell = function(data, pos) {
       }
     }
   }
+  // for (let cell of data.you.body) {
+  //   if (cell.x == pos.x && cell.y == pos.y) {
+  //     return true;
+  //   }
+  // }
   return false;
+}
+
+// if enemy is closer to given cell
+let isEnemyCloser = function(data, cell){
+  const heads = getEnemyHeads(data);
+  
+  const distances = []
+  for (let head of heads) {
+    let dist = getDist(head, cell)
+    distances.push(dist)
+  }
+
+  yourDist = getDist(data.you.body[0], cell)
+  for (let d of distances){
+    if (d < yourDist) {
+      return 
+    }
+  }
+}
+
+// get positions of all
+let getEnemyHeads = function(data){
+  const heads = []
+  for (let snake of data.board.snakes) {
+    heads.push(snake[0])
+  }
+  return heads
+}
+
+// calc distance between two points
+let getDist = function(a, b){
+  return Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2)
+}
+
+// yolo
+function getRandomDirection() {
+  const index = Math.floor(Math.random() * Math.floor(4));
+  return ["up", "down", "left", "right"][index];
 }
 
 // --- SNAKE LOGIC GOES ABOVE THIS LINE ---
