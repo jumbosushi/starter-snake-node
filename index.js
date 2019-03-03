@@ -39,14 +39,14 @@ app.post('/move', (request, response) => {
 
   let dir = getRandomDirection();
   while (!isValidMove(request.body, dir)){
-    dir = getRandomDirection();  
+    dir = getRandomDirection();
   }
 
   // Response data
   const data = {
     move: dir, // one of: ['up','down','left','right']
   }
-  
+
   return response.json(data)
 })
 
@@ -62,7 +62,7 @@ app.post('/ping', (request, response) => {
 
 // --- HELPERS ---
 let isValidMove = function(data, move) {
-  head = data.you.body[0];
+  let head = Object.assign({}, data.you.body[0])
   if (move == "up") {
     head.y -= 1;
   } else if (move == "down") {
@@ -72,7 +72,7 @@ let isValidMove = function(data, move) {
   } else if (move == "right") {
     head.x += 1;
   }
-  if (isInBounds(data, head) && !isSnakeCell(data, head)){
+  if (isInBounds(data, head) && !isSnakeCell(data, head) && !isOwnBody(data, head)){
     return true;
   } else {
     return false;
@@ -107,10 +107,21 @@ let isSnakeCell = function(data, pos) {
   return false;
 }
 
+let isOwnBody = function(data, head) {
+  let result = false
+  for (let node in data.you.body) {
+    if (JSON.stringify(node) == JSON.stringify(head)) {
+      result = true
+      break
+    }
+  }
+  return result
+}
+
 // if enemy is closer to given cell
 let isEnemyCloser = function(data, cell){
   const heads = getEnemyHeads(data);
-  
+
   const distances = []
   for (let head of heads) {
     let dist = getDist(head, cell)
@@ -120,7 +131,7 @@ let isEnemyCloser = function(data, cell){
   yourDist = getDist(data.you.body[0], cell)
   for (let d of distances){
     if (d < yourDist) {
-      return 
+      return
     }
   }
 }
