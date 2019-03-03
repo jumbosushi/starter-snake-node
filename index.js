@@ -82,7 +82,7 @@ let isValidMove = function(data, move) {
 // checks if given coordinate is in the game board
 let isInBounds = function(data, pos) {
   const { height, width } = data.board;
-  if (pos.x > 0 || pos.y > 0 || pos.x < width || pos.y < height) {
+  if (pos.x > 0 && pos.y > 0 && pos.x < width && pos.y < height) {
     return true;
   }
   return false;
@@ -91,7 +91,6 @@ let isInBounds = function(data, pos) {
 // checks if given cell is occupied by a snake
 let isSnakeCell = function(data, pos) {
   let { board: { snakes } } = data;
-  // snakes.push(data.you.body)
   for (let snake of snakes) {
     for (let cell of snake.body) {
       if (cell.x == pos.x && cell.y == pos.y) {
@@ -99,11 +98,6 @@ let isSnakeCell = function(data, pos) {
       }
     }
   }
-  // for (let cell of data.you.body) {
-  //   if (cell.x == pos.x && cell.y == pos.y) {
-  //     return true;
-  //   }
-  // }
   return false;
 }
 
@@ -131,9 +125,10 @@ let isEnemyCloser = function(data, cell){
   yourDist = getDist(data.you.body[0], cell)
   for (let d of distances){
     if (d < yourDist) {
-      return
+      return true
     }
   }
+  return false
 }
 
 // get positions of all
